@@ -1,0 +1,20 @@
+How good are LLM at 20 questions?
+
+Brainstorming:
+
+Data Acquisition & Collection: 
+
+Here we need to generate data by making 4 models play among each other
+	1. 1(questioner) vs 2(guesser)
+	2. 2 vs 1
+	3. 1 vs 1
+ Number of runs?
+	16 pairs - 100 games per pair
+		
+
+Limitations/Challenges:
+
+1. APIs are costly
+	a. Locally run llama models
+2. Which models should we choose? Can we take any random models?
+2. How to evaluate?
