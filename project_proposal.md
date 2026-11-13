@@ -2,11 +2,7 @@
 
 **Project proposal**
 
-**Students:** [Add names]
-
-**Course/program:** [Add course or program]
-
-**Instructor:** [Add professor]
+**Instructor:** Professor Steven Skiena
 
 ## Problem
 
