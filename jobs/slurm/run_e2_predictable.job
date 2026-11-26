@@ -3,9 +3,9 @@
 #SBATCH --output=logs/%x-%j.out
 #SBATCH --error=logs/%x-%j.err
 #SBATCH --time=2-00:00
-#SBATCH --mem=50000
+#SBATCH --mem=16000
 #SBATCH --cpus-per-task=4
-#SBATCH --nodelist=quadro2
+#SBATCH --exclude=tesla1,tesla2,h100,orion
 #SBATCH --gres=gpu:2
 
 set -euo pipefail

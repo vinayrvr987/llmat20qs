@@ -30,6 +30,8 @@ MAX_FORMAT_ATTEMPTS = 3
 BOOTSTRAP_REPLICATES = 2000
 PERMUTATION_REPLICATES = 10000
 CATEGORIES = ("object", "animal", "place", "person")
+# Prompts are unchanged from the first run. A turns-left reminder (v2) was tried
+# and dropped: it made Gemma delay guessing until the final turn.
 PROMPT_VERSION = "e1-prompts-v1"
 GENERATION_CONFIG = {
     "do_sample": True,
@@ -39,8 +41,13 @@ GENERATION_CONFIG = {
 }
 
 
+# v2: a guess naming any listed candidate is a scored move that spends a turn.
+# v1 (buggy) silently retried wrong guesses as format errors, giving free guesses.
+GUESS_RULE_VERSION = "listed-candidate-guess-spends-turn-v2"
+
 RUN_CONFIG = {
     "prompt_version": PROMPT_VERSION,
+    "guess_rule": GUESS_RULE_VERSION,
     "model_dtypes": {model.key: model.inference_dtype for model in MODELS},
     "max_turns": MAX_TURNS,
     "max_format_attempts": MAX_FORMAT_ATTEMPTS,
@@ -88,6 +95,45 @@ class Generation:
     elapsed_seconds: float
     input_tokens: int | None = None
     output_tokens: int | None = None
+
+
+THINK_END_TOKEN = "</think>"
+FORCED_THINK_CLOSE = "\n</think>\n\n"
+
+
+@dataclass(frozen=True)
+class ThinkingGeneration(Generation):
+    """A budgeted thinking-mode generation; ``text`` holds only the final answer."""
+
+    thinking_tokens: int = 0
+    answer_tokens: int = 0
+    budget_exhausted: bool = False
+
+
+@dataclass(frozen=True)
+class ThinkingStep:
+    action: str  # "done", "continue_answer", or "force_close"
+    thinking_tokens: int
+
+
+def plan_thinking_continuation(
+    phase_one_ids: list[int],
+    end_think_id: int,
+    eos_ids: set[int],
+    thinking_budget: int,
+) -> ThinkingStep:
+    """Decide how to finish a budgeted generation after the thinking phase.
+
+    ``thinking_tokens`` counts the reasoning tokens up to and including the
+    closing tag (or all phase-one tokens when the tag is forced).
+    """
+    if end_think_id in phase_one_ids:
+        thinking_tokens = phase_one_ids.index(end_think_id) + 1
+        finished = bool(phase_one_ids) and (
+            phase_one_ids[-1] in eos_ids or len(phase_one_ids) < thinking_budget
+        )
+        return ThinkingStep("done" if finished else "continue_answer", thinking_tokens)
+    return ThinkingStep("force_close", len(phase_one_ids))
 
 
 class Backend(Protocol):
@@ -213,6 +259,23 @@ class HuggingFaceBackend:
     def generate(
         self, model: ModelConfig, messages: list[dict[str, str]], seed: int
     ) -> Generation:
+        return self.generate_with_options(
+            model,
+            messages,
+            seed,
+            enable_thinking=False,
+            max_new_tokens=None,
+        )
+
+    def generate_with_options(
+        self,
+        model: ModelConfig,
+        messages: list[dict[str, str]],
+        seed: int,
+        *,
+        enable_thinking: bool,
+        max_new_tokens: int | None,
+    ) -> Generation:
         if model.key not in self.loaded:
             raise ExperimentError(f"{model.name} was not loaded for this pairing.")
         tokenizer, language_model = self.loaded[model.key]
@@ -224,9 +287,13 @@ class HuggingFaceBackend:
                     add_generation_prompt=True,
                     return_tensors="pt",
                     return_dict=True,
-                    enable_thinking=False,
+                    enable_thinking=enable_thinking,
                 )
-            except TypeError:
+            except TypeError as error:
+                if enable_thinking:
+                    raise ExperimentError(
+                        f"{model.name}'s tokenizer does not support enabled thinking."
+                    ) from error
                 inputs = tokenizer.apply_chat_template(
                     messages,
                     tokenize=True,
@@ -238,10 +305,15 @@ class HuggingFaceBackend:
             self.torch.manual_seed(seed)
             self.torch.cuda.manual_seed_all(seed)
             start = time.perf_counter()
+            generation_config = dict(GENERATION_CONFIG)
+            if max_new_tokens is not None:
+                if max_new_tokens < 1:
+                    raise ExperimentError("max_new_tokens must be positive.")
+                generation_config["max_new_tokens"] = max_new_tokens
             with self.torch.inference_mode():
                 output = language_model.generate(
                     **inputs,
-                    **GENERATION_CONFIG,
+                    **generation_config,
                     pad_token_id=tokenizer.eos_token_id,
                 )
             elapsed = time.perf_counter() - start
@@ -254,6 +326,97 @@ class HuggingFaceBackend:
                 elapsed_seconds=elapsed,
                 input_tokens=int(prompt_tokens),
                 output_tokens=int(output.shape[-1] - prompt_tokens),
+            )
+        except ExperimentError:
+            raise
+        except Exception as error:
+            raise ExperimentError(
+                f"Generation failed for {model.model_id}: "
+                f"{type(error).__name__}: {error}"
+            ) from error
+
+    def generate_with_thinking_budget(
+        self,
+        model: ModelConfig,
+        messages: list[dict[str, str]],
+        seed: int,
+        *,
+        thinking_budget: int,
+        answer_max_tokens: int,
+    ) -> ThinkingGeneration:
+        """Think for at most ``thinking_budget`` tokens, then force a final answer.
+
+        Phase 1 samples up to the budget with thinking enabled. If the model has not
+        closed its ``</think>`` block, the controller appends one and phase 2 samples
+        at most ``answer_max_tokens`` answer tokens. Only the post-reasoning answer is
+        returned as ``text``; the reasoning trace itself is discarded.
+        """
+        if thinking_budget < 1 or answer_max_tokens < 1:
+            raise ExperimentError("Thinking budget and answer cap must be positive.")
+        if model.key not in self.loaded:
+            raise ExperimentError(f"{model.name} was not loaded for this pairing.")
+        tokenizer, language_model = self.loaded[model.key]
+        end_think_id = tokenizer.convert_tokens_to_ids(THINK_END_TOKEN)
+        if end_think_id is None or end_think_id == tokenizer.unk_token_id:
+            raise ExperimentError(f"{model.name}'s tokenizer has no {THINK_END_TOKEN} token.")
+        eos_ids = language_model.generation_config.eos_token_id
+        eos_ids = set(eos_ids if isinstance(eos_ids, list) else [eos_ids])
+        try:
+            try:
+                inputs = tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=True,
+                    add_generation_prompt=True,
+                    return_tensors="pt",
+                    return_dict=True,
+                    enable_thinking=True,
+                )
+            except TypeError as error:
+                raise ExperimentError(
+                    f"{model.name}'s tokenizer does not support enabled thinking."
+                ) from error
+            inputs = inputs.to(language_model.device)
+            prompt_tokens = int(inputs["input_ids"].shape[-1])
+            self.torch.manual_seed(seed)
+            self.torch.cuda.manual_seed_all(seed)
+            start = time.perf_counter()
+            with self.torch.inference_mode():
+                output = language_model.generate(
+                    **inputs,
+                    **{**GENERATION_CONFIG, "max_new_tokens": thinking_budget},
+                    pad_token_id=tokenizer.eos_token_id,
+                )
+                phase_one = output[0][prompt_tokens:].tolist()
+                step = plan_thinking_continuation(
+                    phase_one, end_think_id, eos_ids, thinking_budget
+                )
+                if step.action != "done":
+                    sequence = output
+                    if step.action == "force_close":
+                        if phase_one and phase_one[-1] in eos_ids:
+                            sequence = sequence[:, :-1]
+                        closing = tokenizer.encode(
+                            FORCED_THINK_CLOSE, add_special_tokens=False, return_tensors="pt"
+                        ).to(output.device)
+                        sequence = self.torch.cat([sequence, closing], dim=-1)
+                    output = language_model.generate(
+                        input_ids=sequence,
+                        attention_mask=self.torch.ones_like(sequence),
+                        **{**GENERATION_CONFIG, "max_new_tokens": answer_max_tokens},
+                        pad_token_id=tokenizer.eos_token_id,
+                    )
+            elapsed = time.perf_counter() - start
+            generated = output[0][prompt_tokens:].tolist()
+            answer_ids = generated[generated.index(end_think_id) + 1:]
+            answer_ids = [token for token in answer_ids if token not in eos_ids]
+            return ThinkingGeneration(
+                text=tokenizer.decode(answer_ids, skip_special_tokens=True).strip(),
+                elapsed_seconds=elapsed,
+                input_tokens=prompt_tokens,
+                output_tokens=len(generated),
+                thinking_tokens=step.thinking_tokens,
+                answer_tokens=len(answer_ids),
+                budget_exhausted=step.action == "force_close",
             )
         except ExperimentError:
             raise
@@ -469,6 +632,11 @@ def render_guesser_system(targets: list[Target]) -> str:
     )
 
 
+def candidate_names(targets: list[Target]) -> set[str]:
+    """Normalized accepted names of every candidate a guesser may name."""
+    return {normalize(name) for target in targets for name in target.accepted_names}
+
+
 def parse_answer(text: str) -> str | None:
     match = re.match(r"^\s*(yes|no)\b", text, flags=re.IGNORECASE)
     return match.group(1).capitalize() if match else None
@@ -505,6 +673,7 @@ def play_game(
     backend: Backend,
 ) -> dict:
     accepted = {normalize(name) for name in spec.target.accepted_names}
+    listed = candidate_names([target for target in targets if target.e1])
     answerer_messages = [{
         "role": "system",
         "content": ANSWERER_SYSTEM.format(secret=spec.target.name),
@@ -540,7 +709,7 @@ def play_game(
             parsed_move = parse_move(generation.text)
             if parsed_move:
                 kind, body = parsed_move
-                if kind == "GUESS" and normalize(body) not in accepted:
+                if kind == "GUESS" and normalize(body) not in listed:
                     parsed_move = None
                 else:
                     break
@@ -625,6 +794,7 @@ def play_game(
                 "answer_status": "invalid",
                 "raw_answers": raw_answers,
                 "format_retries": max(0, len(raw_answers) - 1),
+                "raw_moves": raw_moves,
             })
             guesser_messages.append({
                 "role": "user",
@@ -640,6 +810,8 @@ def play_game(
             "answer_status": "valid",
             "raw_answers": raw_answers,
             "format_retries": max(0, len(raw_answers) - 1),
+            # Guesser attempts for this turn, including any rejected retries.
+            "raw_moves": raw_moves,
         })
         guesser_messages.append({"role": "user", "content": answer})
 
@@ -722,6 +894,15 @@ def validate_records(
             raise ExperimentError(f"Model, seed, or target metadata mismatch for {game_id}.")
         if record.get("schema_version") != 1 or record.get("experiment") != "E1":
             raise ExperimentError(f"Unsupported result schema for {game_id}.")
+        run_config = record.get("run_config", {})
+        if (
+            run_config.get("guess_rule") != GUESS_RULE_VERSION
+            or run_config.get("prompt_version") != PROMPT_VERSION
+        ):
+            raise ExperimentError(
+                f"{game_id} was recorded under a different guess rule or prompt version; move the old results "
+                "file aside and start a new one."
+            )
         inference_mode = record.get("inference_mode")
         if inference_mode not in ("mock", "transformers", "test"):
             raise ExperimentError(f"Missing or unsupported inference mode for {game_id}.")

@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "experiment": "E2_self_secret_scouting",
+  "games": 640,
+  "groups": [
+    {
+      "condition": {
+        "model": "gemma3-12b-it",
+        "scouting": false
+      },
+      "games": 80,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        0.0,
+        0.0458181295355271
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 19.9875,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "gemma3-12b-it",
+        "scouting": true
+      },
+      "games": 80,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        0.0,
+        0.0458181295355271
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 20,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "granite-3.3-8b",
+        "scouting": false
+      },
+      "games": 80,
+      "win_rate": 0.0875,
+      "win_rate_wilson_95_ci": [
+        0.04303200178205986,
+        0.16976795508474996
+      ],
+      "mean_turns": 19.2125,
+      "mean_answer_turns": 14.9,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "granite-3.3-8b",
+        "scouting": true
+      },
+      "games": 80,
+      "win_rate": 0.2125,
+      "win_rate_wilson_95_ci": [
+        0.13712386717696146,
+        0.31422155730596657
+      ],
+      "mean_turns": 17.5,
+      "mean_answer_turns": 14.2375,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "mistral-nemo-12b",
+        "scouting": false
+      },
+      "games": 80,
+      "win_rate": 0.0625,
+      "win_rate_wilson_95_ci": [
+        0.026989375670841982,
+        0.13810148767274424
+      ],
+      "mean_turns": 19.025,
+      "mean_answer_turns": 18.75,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "mistral-nemo-12b",
+        "scouting": true
+      },
+      "games": 80,
+      "win_rate": 0.1,
+      "win_rate_wilson_95_ci": [
+        0.05154761556738083,
+        0.18510688806104086
+      ],
+      "mean_turns": 18.4625,
+      "mean_answer_turns": 18.1,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "qwen3-8b",
+        "scouting": false
+      },
+      "games": 80,
+      "win_rate": 0.4625,
+      "win_rate_wilson_95_ci": [
+        0.35747993562785246,
+        0.570956424087312
+      ],
+      "mean_turns": 16.8125,
+      "mean_answer_turns": 11.8125,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    },
+    {
+      "condition": {
+        "model": "qwen3-8b",
+        "scouting": true
+      },
+      "games": 80,
+      "win_rate": 0.8,
+      "win_rate_wilson_95_ci": [
+        0.6995375627182917,
+        0.8729715595603921
+      ],
+      "mean_turns": 11.1125,
+      "mean_answer_turns": 7.625,
+      "mean_applied_flips": 0,
+      "flipped_answer_rate": 0.0
+    }
+  ]
+}

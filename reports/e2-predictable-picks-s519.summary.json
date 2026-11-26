@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "experiment": "E2_predictable_minds_pick_distribution",
+  "games": 400,
+  "uniform_baseline": "Monte Carlo uniform draws from the fixed 128-target manifest; the small 100-draw sample is descriptive and not a high-powered test of uniformity.",
+  "models": [
+    {
+      "model": "qwen3-8b",
+      "draws": 100,
+      "distinct_picks": 8,
+      "shannon_entropy_bits": 2.452435208549541,
+      "maximum_entropy_bits_for_128_targets": 7.0,
+      "top_picks": [
+        {
+          "target_id": "object-sextant",
+          "count": 25
+        },
+        {
+          "target_id": "animal-pangolin",
+          "count": 25
+        },
+        {
+          "target_id": "place-salar-de-uyuni",
+          "count": 21
+        },
+        {
+          "target_id": "person-leonardo-da-vinci",
+          "count": 19
+        },
+        {
+          "target_id": "person-mary-seacole",
+          "count": 4
+        },
+        {
+          "target_id": "person-mary-anning",
+          "count": 2
+        },
+        {
+          "target_id": "place-grand-canyon",
+          "count": 2
+        },
+        {
+          "target_id": "place-lake-baikal",
+          "count": 2
+        }
+      ],
+      "uniform_baseline_mean_entropy_bits": 5.975103048501973,
+      "uniform_baseline_entropy_2_5_97_5": [
+        5.803465189601654,
+        6.141209564709832
+      ],
+      "uniform_baseline_lower_tail_fraction": 0.0
+    },
+    {
+      "model": "gemma3-12b-it",
+      "draws": 100,
+      "distinct_picks": 8,
+      "shannon_entropy_bits": 2.5047075183892775,
+      "maximum_entropy_bits_for_128_targets": 7.0,
+      "top_picks": [
+        {
+          "target_id": "object-sextant",
+          "count": 25
+        },
+        {
+          "target_id": "place-svalbard",
+          "count": 25
+        },
+        {
+          "target_id": "person-zheng-he",
+          "count": 25
+        },
+        {
+          "target_id": "animal-wombat",
+          "count": 10
+        },
+        {
+          "target_id": "animal-giraffe",
+          "count": 7
+        },
+        {
+          "target_id": "animal-aardvark",
+          "count": 4
+        },
+        {
+          "target_id": "animal-axolotl",
+          "count": 3
+        },
+        {
+          "target_id": "animal-okapi",
+          "count": 1
+        }
+      ],
+      "uniform_baseline_mean_entropy_bits": 5.976563117723851,
+      "uniform_baseline_entropy_2_5_97_5": [
+        5.803465189601655,
+        6.1363073147530995
+      ],
+      "uniform_baseline_lower_tail_fraction": 0.0
+    },
+    {
+      "model": "mistral-nemo-12b",
+      "draws": 100,
+      "distinct_picks": 19,
+      "shannon_entropy_bits": 3.469122467912499,
+      "maximum_entropy_bits_for_128_targets": 7.0,
+      "top_picks": [
+        {
+          "target_id": "object-spoon",
+          "count": 22
+        },
+        {
+          "target_id": "person-albert-einstein",
+          "count": 22
+        },
+        {
+          "target_id": "place-paris",
+          "count": 12
+        },
+        {
+          "target_id": "animal-dog",
+          "count": 10
+        },
+        {
+          "target_id": "place-timbuktu",
+          "count": 4
+        },
+        {
+          "target_id": "animal-penguin",
+          "count": 4
+        },
+        {
+          "target_id": "animal-cat",
+          "count": 3
+        },
+        {
+          "target_id": "object-chair",
+          "count": 3
+        },
+        {
+          "target_id": "animal-elephant",
+          "count": 3
+        },
+        {
+          "target_id": "place-grand-canyon",
+          "count": 3
+        }
+      ],
+      "uniform_baseline_mean_entropy_bits": 5.977320170677344,
+      "uniform_baseline_entropy_2_5_97_5": [
+        5.820818564536752,
+        6.126111814666562
+      ],
+      "uniform_baseline_lower_tail_fraction": 0.0
+    },
+    {
+      "model": "granite-3.3-8b",
+      "draws": 100,
+      "distinct_picks": 15,
+      "shannon_entropy_bits": 3.337511170235943,
+      "maximum_entropy_bits_for_128_targets": 7.0,
+      "top_picks": [
+        {
+          "target_id": "person-ada-lovelace",
+          "count": 25
+        },
+        {
+          "target_id": "animal-penguin",
+          "count": 14
+        },
+        {
+          "target_id": "place-salar-de-uyuni",
+          "count": 14
+        },
+        {
+          "target_id": "animal-dolphin",
+          "count": 8
+        },
+        {
+          "target_id": "object-toothbrush",
+          "count": 7
+        },
+        {
+          "target_id": "object-bottle",
+          "count": 7
+        },
+        {
+          "target_id": "place-sahara",
+          "count": 6
+        },
+        {
+          "target_id": "object-lamp",
+          "count": 5
+        },
+        {
+          "target_id": "object-bicycle",
+          "count": 4
+        },
+        {
+          "target_id": "place-great-wall",
+          "count": 3
+        }
+      ],
+      "uniform_baseline_mean_entropy_bits": 5.978336290614198,
+      "uniform_baseline_entropy_2_5_97_5": [
+        5.810015409922191,
+        6.1363073147531
+      ],
+      "uniform_baseline_lower_tail_fraction": 0.0
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Analysis-only environment (no torch). Kept separate from the GPU venv so
+# notebook packages never change numpy/torch under running experiments.
+#   /shared/software/python/3.11/bin/python3.11 -m venv ~/.venvs/llmat20qs-analysis
+#   ~/.venvs/llmat20qs-analysis/bin/pip install -r requirements-analysis.txt
+#   ~/.venvs/llmat20qs-analysis/bin/python -m ipykernel install --user --name llmat20qs-analysis
+pandas>=2
+matplotlib>=3.8
+ipykernel
+nbformat
+nbconvert

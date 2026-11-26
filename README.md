@@ -47,6 +47,20 @@ cache and are not stored in the repository.
   conversation histories. Malformed moves and answers receive at most two
   formatting retries; an unresolved malformed response is logged and spends
   the turn.
+- A guess that names any listed candidate is a scored move: it spends a turn,
+  and a wrong guess is answered "No, the secret is not X." Only guesses outside
+  the candidate list are treated as formatting errors.
+- **Protocol revision (2026-11-25).** The first E1–E4 runs retried wrong
+  guesses as formatting errors, which gave free guesses and leaked feedback;
+  about half of Qwen3 8B's wins depended on it. Those logs are kept in
+  [`archive/guess-bug-v1/`](./archive/guess-bug-v1/) and are not valid. E1–E4
+  are re-run under `guess_rule = listed-candidate-guess-spends-turn-v2` with
+  unchanged prompts (`e1-prompts-v1`); the runners refuse to resume from records
+  with a different rule or prompt version. A turns-left reminder was briefly
+  tried and dropped because it made Gemma 3 delay guessing until the last turn
+  (see [`archive/aborted-2026-11-25/`](./archive/aborted-2026-11-25/)). Because
+  prompts and seeds are unchanged, Gemma's and Mistral's re-run E1 games (which
+  the bug never touched) should closely reproduce v1.
 
 Pairing comparisons are matched by secret. The E1 report includes win rates,
 target-clustered 95% bootstrap intervals, paired sign-flip tests with Holm
@@ -152,10 +166,12 @@ python -m src.experiments.e1 --report-only \
 
 ## Additional experiments
 
-The four follow-up studies live in
-[`src/experiments/followups.py`](./src/experiments/followups.py). Their
-resumable game logs go to `data/raw/results/`; generated JSON summaries go to
-`reports/`.
+The original E2-E4 studies live in
+[`src/experiments/followups.py`](./src/experiments/followups.py); E5 has a
+separate runner in [`src/experiments/e5_information.py`](./src/experiments/e5_information.py),
+and E6 builds on it in [`src/experiments/e6_reasoning_budget.py`](./src/experiments/e6_reasoning_budget.py).
+Their resumable game logs go to `data/raw/results/`; generated JSON summaries
+go to `reports/`.
 
 | Study | Games | Design |
 |---|---:|---|
@@ -163,6 +179,8 @@ resumable game logs go to `data/raw/results/`; generated JSON summaries go to
 | E2 self-secret/scouting | 640 | Four self-play pairings, 80 matched model-picked secrets per condition, with and without the opponent model's top-five pick report. Reuses the predictable-minds pick file. |
 | E3 liar | 500 | Qwen3 is the fixed baseline answerer. Four guessers, 0/1/2 scheduled answer flips, and warned/unwarned conditions; 20 or 21 matched games per cell. |
 | E4 noisy oracle | 300 | Qwen3 is the fixed baseline answerer. Four guessers × 5%/10%/17% flip probability × 25 games. |
+| E5 exact-information pilot | 160 | Four models each play the same 40 E1 targets against a deterministic, project-curated question oracle. The model chooses from a fixed bank of binary predicates; reports expected/realized bits, per-question optimality, and greedy/random baselines. |
+| E6 reasoning budget | 120 | Qwen3 8B plays the same 40 E5 targets, question bank, and oracle with thinking off, a 256-token, and a 1024-token thinking budget. Matched by target and sampling seed; reports paired differences in bits per question, optimality, turns, wins, generated tokens, and runtime. |
 
 Qwen3's responses are a model-generated baseline, not a reviewed factual answer
 key. E3/E4 measure additional deliberate or probabilistic flips on top of that
@@ -171,9 +189,27 @@ how many or when. Early-ending games may realize fewer flips than scheduled;
 both scheduled and applied counts are recorded. The 100-pick distribution per
 model is descriptive and has limited power to establish uniformity.
 
-Wait for active E1 jobs to finish before submitting follow-ups because they
-share Quadro2 resources. Run predictable minds first; scouting reuses its pick
-file. Then submit the remaining jobs:
+E5 uses a closed question menu, unlike free-form E1. This makes oracle answers
+and information gain exactly measurable but limits ecological validity. The
+feature predicates are project-curated and require human review before treating
+E5 as a confirmatory study. The menu and labels are in
+[`data/processed/e5_question_bank_v1.json`](./data/processed/e5_question_bank_v1.json).
+Run a local mock check with `make mock-e5`; submit the GPU run with
+`sbatch jobs/slurm/run_e5_information.job` after reviewing the question bank.
+
+E6 asks a new question rather than adding games to E1: does extra reasoning
+make Qwen3's questions more informative, and what does that cost? Budgets are
+enforced by budget forcing: if the model has not closed `</think>` when the
+budget runs out, the controller closes it and allows up to 32 answer tokens.
+Reasoning traces are discarded and never re-enter the dialogue history. All
+conditions use the E1 sampling settings (temperature 0.7, top-p 0.9), so only
+the budget varies. Because the exact oracle makes most games winnable, bits
+per question, optimality ratio, and turns are the primary outcomes; win rate
+is secondary. Run `make mock-e6` locally and `make run-e6` on the cluster.
+
+The four original follow-up studies total 2,080 games; E5 adds a 160-game pilot
+and E6 a 120-game reasoning-budget pilot. With E1, the expanded plan is 3,000 games. Wait for active jobs to finish
+before submitting more work to Quadro2. To launch the original follow-ups:
 
 ```bash
 sbatch jobs/slurm/run_e2_predictable.job
@@ -182,6 +218,3 @@ sbatch jobs/slurm/run_e2_scouting.job
 sbatch jobs/slurm/run_e3_liar.job
 sbatch jobs/slurm/run_e4_noisy.job
 ```
-
-The follow-up studies total 2,080 games; together with E1 the current plan is
-2,720 games.

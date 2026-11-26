@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "experiment": "E4_noisy_oracle",
+  "games": 300,
+  "groups": [
+    {
+      "condition": {
+        "guesser": "gemma3-12b-it",
+        "flip_probability": 0.05
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 20,
+      "mean_applied_flips": 0.88,
+      "flipped_answer_rate": 0.044
+    },
+    {
+      "condition": {
+        "guesser": "gemma3-12b-it",
+        "flip_probability": 0.1
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 20,
+      "mean_applied_flips": 1.76,
+      "flipped_answer_rate": 0.088
+    },
+    {
+      "condition": {
+        "guesser": "gemma3-12b-it",
+        "flip_probability": 0.17
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 20,
+      "mean_applied_flips": 3.52,
+      "flipped_answer_rate": 0.176
+    },
+    {
+      "condition": {
+        "guesser": "granite-3.3-8b",
+        "flip_probability": 0.05
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 17,
+      "mean_applied_flips": 1,
+      "flipped_answer_rate": 0.058823529411764705
+    },
+    {
+      "condition": {
+        "guesser": "granite-3.3-8b",
+        "flip_probability": 0.1
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 16.72,
+      "mean_applied_flips": 1.52,
+      "flipped_answer_rate": 0.09090909090909091
+    },
+    {
+      "condition": {
+        "guesser": "granite-3.3-8b",
+        "flip_probability": 0.17
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 16.08,
+      "mean_applied_flips": 2.96,
+      "flipped_answer_rate": 0.18407960199004975
+    },
+    {
+      "condition": {
+        "guesser": "mistral-nemo-12b",
+        "flip_probability": 0.05
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 19.68,
+      "mean_applied_flips": 1.04,
+      "flipped_answer_rate": 0.052845528455284556
+    },
+    {
+      "condition": {
+        "guesser": "mistral-nemo-12b",
+        "flip_probability": 0.1
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 19.68,
+      "mean_applied_flips": 1.92,
+      "flipped_answer_rate": 0.0975609756097561
+    },
+    {
+      "condition": {
+        "guesser": "mistral-nemo-12b",
+        "flip_probability": 0.17
+      },
+      "games": 25,
+      "win_rate": 0.0,
+      "win_rate_wilson_95_ci": [
+        1.3877787807814457e-17,
+        0.13319225093904846
+      ],
+      "mean_turns": 20,
+      "mean_answer_turns": 19.76,
+      "mean_applied_flips": 3.32,
+      "flipped_answer_rate": 0.1680161943319838
+    },
+    {
+      "condition": {
+        "guesser": "qwen3-8b",
+        "flip_probability": 0.05
+      },
+      "games": 25,
+      "win_rate": 0.32,
+      "win_rate_wilson_95_ci": [
+        0.17205190306907978,
+        0.5158973072689775
+      ],
+      "mean_turns": 17.16,
+      "mean_answer_turns": 11.8,
+      "mean_applied_flips": 0.6,
+      "flipped_answer_rate": 0.05084745762711865
+    },
+    {
+      "condition": {
+        "guesser": "qwen3-8b",
+        "flip_probability": 0.1
+      },
+      "games": 25,
+      "win_rate": 0.2,
+      "win_rate_wilson_95_ci": [
+        0.08860584686802572,
+        0.3913095036954033
+      ],
+      "mean_turns": 18.56,
+      "mean_answer_turns": 12.92,
+      "mean_applied_flips": 1.48,
+      "flipped_answer_rate": 0.11455108359133127
+    },
+    {
+      "condition": {
+        "guesser": "qwen3-8b",
+        "flip_probability": 0.17
+      },
+      "games": 25,
+      "win_rate": 0.28,
+      "win_rate_wilson_95_ci": [
+        0.14283853850956563,
+        0.47576605190361576
+      ],
+      "mean_turns": 18.2,
+      "mean_answer_turns": 13.04,
+      "mean_applied_flips": 2.4,
+      "flipped_answer_rate": 0.18404907975460122
+    }
+  ]
+}

@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "experiment": "E6_reasoning_budget",
+  "model": {
+    "key": "qwen3-8b",
+    "name": "Qwen3 8B",
+    "model_id": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "inference_dtype": "float16"
+  },
+  "design": {
+    "targets": 40,
+    "conditions": [
+      {
+        "key": "thinking_off",
+        "enable_thinking": false,
+        "thinking_budget_tokens": 0,
+        "answer_max_tokens": 128
+      },
+      {
+        "key": "thinking_256",
+        "enable_thinking": true,
+        "thinking_budget_tokens": 256,
+        "answer_max_tokens": 32
+      },
+      {
+        "key": "thinking_1024",
+        "enable_thinking": true,
+        "thinking_budget_tokens": 1024,
+        "answer_max_tokens": 32
+      }
+    ],
+    "generation_config": {
+      "do_sample": true,
+      "temperature": 0.7,
+      "top_p": 0.9,
+      "max_new_tokens": 128
+    },
+    "matched_on": [
+      "target",
+      "per-turn sampling seed",
+      "question bank",
+      "oracle"
+    ],
+    "budget_enforcement": "Thinking is capped at the budget; if </think> is missing at the cap the controller inserts it and allows up to 32 answer tokens.",
+    "reasoning_trace_saved": false,
+    "uncertainty": "95% percentile bootstrap over targets (paired for differences)"
+  },
+  "games": 120,
+  "groups": [
+    {
+      "key": "thinking_off",
+      "enable_thinking": false,
+      "thinking_budget_tokens": 0,
+      "answer_max_tokens": 128,
+      "games": 40,
+      "mean_won": 1.0,
+      "mean_won_target_bootstrap_95_ci": [
+        1.0,
+        1.0
+      ],
+      "mean_turns": 7.925,
+      "mean_turns_target_bootstrap_95_ci": [
+        7.25,
+        8.575
+      ],
+      "mean_questions": 6.925,
+      "mean_questions_target_bootstrap_95_ci": [
+        6.25,
+        7.6
+      ],
+      "mean_invalid_actions": 0.0,
+      "mean_invalid_actions_target_bootstrap_95_ci": [
+        0.0,
+        0.0
+      ],
+      "mean_expected_information_bits": 5.450712085491644,
+      "mean_expected_information_bits_target_bootstrap_95_ci": [
+        4.938337437073142,
+        5.953727374409433
+      ],
+      "mean_realized_information_bits": 5.321928094887363,
+      "mean_realized_information_bits_target_bootstrap_95_ci": [
+        5.321928094887362,
+        5.321928094887363
+      ],
+      "mean_mean_question_information_bits": 0.7854055232999119,
+      "mean_mean_question_information_bits_target_bootstrap_95_ci": [
+        0.7614199090345611,
+        0.8092235699106205
+      ],
+      "mean_mean_optimality_ratio": 0.8695443779124485,
+      "mean_mean_optimality_ratio_target_bootstrap_95_ci": [
+        0.8385523970574924,
+        0.8967855373853324
+      ],
+      "mean_output_tokens": 41.55,
+      "mean_output_tokens_target_bootstrap_95_ci": [
+        37.5,
+        45.6
+      ],
+      "mean_thinking_tokens": 0.0,
+      "mean_thinking_tokens_target_bootstrap_95_ci": [
+        0.0,
+        0.0
+      ],
+      "mean_budget_exhausted_rate": 0.0,
+      "mean_budget_exhausted_rate_target_bootstrap_95_ci": [
+        0.0,
+        0.0
+      ],
+      "mean_generation_seconds": 2.9681980621651745,
+      "mean_generation_seconds_target_bootstrap_95_ci": [
+        2.7125890767318195,
+        3.2388756722561083
+      ]
+    },
+    {
+      "key": "thinking_256",
+      "enable_thinking": true,
+      "thinking_budget_tokens": 256,
+      "answer_max_tokens": 32,
+      "games": 40,
+      "mean_won": 1.0,
+      "mean_won_target_bootstrap_95_ci": [
+        1.0,
+        1.0
+      ],
+      "mean_turns": 8.55,
+      "mean_turns_target_bootstrap_95_ci": [
+        7.95,
+        9.125
+      ],
+      "mean_questions": 7.15,
+      "mean_questions_target_bootstrap_95_ci": [
+        6.65,
+        7.7
+      ],
+      "mean_invalid_actions": 0.175,
+      "mean_invalid_actions_target_bootstrap_95_ci": [
+        0.05,
+        0.35
+      ],
+      "mean_expected_information_bits": 5.716526019485426,
+      "mean_expected_information_bits_target_bootstrap_95_ci": [
+        5.284237478970309,
+        6.150736591800752
+      ],
+      "mean_realized_information_bits": 5.204071956945709,
+      "mean_realized_information_bits_target_bootstrap_95_ci": [
+        5.099943786122222,
+        5.287407550288839
+      ],
+      "mean_mean_question_information_bits": 0.8020438559601861,
+      "mean_mean_question_information_bits_target_bootstrap_95_ci": [
+        0.773465428131296,
+        0.8289279737368541
+      ],
+      "mean_mean_optimality_ratio": 0.9028847311428375,
+      "mean_mean_optimality_ratio_target_bootstrap_95_ci": [
+        0.8809731631499035,
+        0.9231214680074994
+      ],
+      "mean_output_tokens": 2138.425,
+      "mean_output_tokens_target_bootstrap_95_ci": [
+        1936.8,
+        2354.95
+      ],
+      "mean_thinking_tokens": 2060.3,
+      "mean_thinking_tokens_target_bootstrap_95_ci": [
+        1854.5,
+        2265.1
+      ],
+      "mean_budget_exhausted_rate": 0.9875,
+      "mean_budget_exhausted_rate_target_bootstrap_95_ci": [
+        0.96875,
+        1.0
+      ],
+      "mean_generation_seconds": 107.92342729541706,
+      "mean_generation_seconds_target_bootstrap_95_ci": [
+        97.74965959383408,
+        119.1592174856225
+      ]
+    },
+    {
+      "key": "thinking_1024",
+      "enable_thinking": true,
+      "thinking_budget_tokens": 1024,
+      "answer_max_tokens": 32,
+      "games": 40,
+      "mean_won": 1.0,
+      "mean_won_target_bootstrap_95_ci": [
+        1.0,
+        1.0
+      ],
+      "mean_turns": 8.425,
+      "mean_turns_target_bootstrap_95_ci": [
+        7.675,
+        9.175
+      ],
+      "mean_questions": 7.4,
+      "mean_questions_target_bootstrap_95_ci": [
+        6.675,
+        8.175
+      ],
+      "mean_invalid_actions": 0.025,
+      "mean_invalid_actions_target_bootstrap_95_ci": [
+        0.0,
+        0.075
+      ],
+      "mean_expected_information_bits": 5.576445754455774,
+      "mean_expected_information_bits_target_bootstrap_95_ci": [
+        4.994021009388653,
+        6.16337576247443
+      ],
+      "mean_realized_information_bits": 5.321928094887363,
+      "mean_realized_information_bits_target_bootstrap_95_ci": [
+        5.321928094887362,
+        5.321928094887363
+      ],
+      "mean_mean_question_information_bits": 0.7520438161338208,
+      "mean_mean_question_information_bits_target_bootstrap_95_ci": [
+        0.7241743004586695,
+        0.7806495189423144
+      ],
+      "mean_mean_optimality_ratio": 0.8418195255888022,
+      "mean_mean_optimality_ratio_target_bootstrap_95_ci": [
+        0.808588562960676,
+        0.8761117029565823
+      ],
+      "mean_output_tokens": 7542.2,
+      "mean_output_tokens_target_bootstrap_95_ci": [
+        6741.325,
+        8277.875
+      ],
+      "mean_thinking_tokens": 7475.875,
+      "mean_thinking_tokens_target_bootstrap_95_ci": [
+        6747.7,
+        8216.775
+      ],
+      "mean_budget_exhausted_rate": 0.8855708874458874,
+      "mean_budget_exhausted_rate_target_bootstrap_95_ci": [
+        0.8539628427128427,
+        0.9197501803751804
+      ],
+      "mean_generation_seconds": 375.91691822666905,
+      "mean_generation_seconds_target_bootstrap_95_ci": [
+        338.44125224046877,
+        412.7346031036694
+      ]
+    }
+  ],
+  "paired_comparisons": [
+    {
+      "condition": "thinking_256",
+      "reference_condition": "thinking_off",
+      "matched_targets": 40,
+      "mean_paired_differences": {
+        "won": 0.0,
+        "turns": 0.625,
+        "invalid_actions": 0.175,
+        "mean_question_information_bits": 0.01663833266027434,
+        "mean_optimality_ratio": 0.03334035323038893,
+        "output_tokens": 2096.875,
+        "generation_seconds": 104.95522923325188
+      },
+      "target_bootstrap_95_ci": {
+        "won": [
+          0.0,
+          0.0
+        ],
+        "turns": [
+          -0.05,
+          1.3
+        ],
+        "invalid_actions": [
+          0.05,
+          0.375
+        ],
+        "mean_question_information_bits": [
+          -0.012064441504567707,
+          0.04521324387125613
+        ],
+        "mean_optimality_ratio": [
+          0.0077733691874552506,
+          0.06014869569226013
+        ],
+        "output_tokens": [
+          1885.425,
+          2308.35
+        ],
+        "generation_seconds": [
+          94.54434675271622,
+          116.72926136737223
+        ]
+      },
+      "question_bits_gained_per_1k_extra_tokens_per_game": 0.007934823325317123
+    },
+    {
+      "condition": "thinking_1024",
+      "reference_condition": "thinking_off",
+      "matched_targets": 40,
+      "mean_paired_differences": {
+        "won": 0.0,
+        "turns": 0.5,
+        "invalid_actions": 0.025,
+        "mean_question_information_bits": -0.03336170716609105,
+        "mean_optimality_ratio": -0.02772485232364629,
+        "output_tokens": 7500.65,
+        "generation_seconds": 372.9487201645039
+      },
+      "target_bootstrap_95_ci": {
+        "won": [
+          0.0,
+          0.0
+        ],
+        "turns": [
+          -0.15,
+          1.1
+        ],
+        "invalid_actions": [
+          0.0,
+          0.075
+        ],
+        "mean_question_information_bits": [
+          -0.0626291144378839,
+          -0.005146253520453484
+        ],
+        "mean_optimality_ratio": [
+          -0.058522788506256626,
+          0.0015844272395596326
+        ],
+        "output_tokens": [
+          6727.425,
+          8257.35
+        ],
+        "generation_seconds": [
+          335.64442705968395,
+          410.4286915504723
+        ]
+      },
+      "question_bits_gained_per_1k_extra_tokens_per_game": -0.0044478421424931245
+    },
+    {
+      "condition": "thinking_1024",
+      "reference_condition": "thinking_256",
+      "matched_targets": 40,
+      "mean_paired_differences": {
+        "won": 0.0,
+        "turns": -0.125,
+        "invalid_actions": -0.15,
+        "mean_question_information_bits": -0.05000003982636539,
+        "mean_optimality_ratio": -0.061065205554035225,
+        "output_tokens": 5403.775,
+        "generation_seconds": 267.99349093125204
+      },
+      "target_bootstrap_95_ci": {
+        "won": [
+          0.0,
+          0.0
+        ],
+        "turns": [
+          -0.8,
+          0.6
+        ],
+        "invalid_actions": [
+          -0.35,
+          0.0
+        ],
+        "mean_question_information_bits": [
+          -0.08303356536679642,
+          -0.019956258002339848
+        ],
+        "mean_optimality_ratio": [
+          -0.09604043497006573,
+          -0.031014883788820027
+        ],
+        "output_tokens": [
+          4693.825,
+          6090.475
+        ],
+        "generation_seconds": [
+          230.23863574835704,
+          303.3649820638122
+        ]
+      },
+      "question_bits_gained_per_1k_extra_tokens_per_game": -0.009252798243147687
+    }
+  ]
+}

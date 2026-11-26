@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "experiment": "E5_exact_information",
+  "games": 160,
+  "groups": [
+    {
+      "model": "gemma3-12b-it",
+      "games": 40,
+      "win_rate": 1,
+      "mean_turns": 7.325,
+      "mean_questions": 6.325,
+      "mean_expected_information_gain_per_question_bits": 0.8442952480395578,
+      "mean_question_optimality_ratio": 0.9572005942944204,
+      "invalid_actions": 0,
+      "greedy_baseline_win_rate": 1,
+      "greedy_baseline_mean_turns": 7.05,
+      "greedy_baseline_mean_information_gain_bits": 5.321928094887363,
+      "random_baseline_win_rate": 0.925,
+      "random_baseline_mean_turns": 11.325,
+      "random_baseline_mean_information_gain_bits": 4.779153176633878
+    },
+    {
+      "model": "granite-3.3-8b",
+      "games": 40,
+      "win_rate": 0.35,
+      "mean_turns": 17.475,
+      "mean_questions": 2.625,
+      "mean_expected_information_gain_per_question_bits": 0.8203431480521994,
+      "mean_question_optimality_ratio": 0.9066155309149543,
+      "invalid_actions": 490,
+      "greedy_baseline_win_rate": 1,
+      "greedy_baseline_mean_turns": 7.05,
+      "greedy_baseline_mean_information_gain_bits": 5.321928094887363,
+      "random_baseline_win_rate": 0.925,
+      "random_baseline_mean_turns": 12.65,
+      "random_baseline_mean_information_gain_bits": 5.115201727196963
+    },
+    {
+      "model": "mistral-nemo-12b",
+      "games": 40,
+      "win_rate": 0.575,
+      "mean_turns": 14.3,
+      "mean_questions": 5.95,
+      "mean_expected_information_gain_per_question_bits": 0.5849845810416486,
+      "mean_question_optimality_ratio": 0.6217002031090587,
+      "invalid_actions": 274,
+      "greedy_baseline_win_rate": 1,
+      "greedy_baseline_mean_turns": 7.05,
+      "greedy_baseline_mean_information_gain_bits": 5.321928094887363,
+      "random_baseline_win_rate": 0.875,
+      "random_baseline_mean_turns": 12.325,
+      "random_baseline_mean_information_gain_bits": 5.284506287263829
+    },
+    {
+      "model": "qwen3-8b",
+      "games": 40,
+      "win_rate": 1,
+      "mean_turns": 7.975,
+      "mean_questions": 6.95,
+      "mean_expected_information_gain_per_question_bits": 0.7888449980616984,
+      "mean_question_optimality_ratio": 0.8860590574889752,
+      "invalid_actions": 1,
+      "greedy_baseline_win_rate": 1,
+      "greedy_baseline_mean_turns": 7.05,
+      "greedy_baseline_mean_information_gain_bits": 5.321928094887363,
+      "random_baseline_win_rate": 0.85,
+      "random_baseline_mean_turns": 12.575,
+      "random_baseline_mean_information_gain_bits": 5.326928323921992
+    }
+  ]
+}

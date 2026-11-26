@@ -115,6 +115,34 @@ class E1ExperimentTests(unittest.TestCase):
         self.assertEqual(game["invalid_moves"], 0)
         self.assertEqual(len(game["turns"][0]["raw_answers"]), 2)
 
+    def test_wrong_listed_guess_spends_a_turn_instead_of_retrying(self):
+        target = next(target for target in self.targets if target.id == "object-chair")
+        other = next(t for t in self.targets if t.e1 and t.id != target.id)
+        spec = next(
+            spec for spec in self.schedule
+            if spec.target.id == target.id and spec.answerer.key != spec.guesser.key
+        )
+        backend = SequenceBackend([f"GUESS: {other.name}", "GUESS: chair"])
+        game = e1.play_game(spec, self.targets, backend)
+        self.assertTrue(game["won"])
+        self.assertEqual(game["turns_used"], 2)
+        self.assertEqual(game["invalid_moves"], 0)
+        self.assertEqual(game["turns"][0]["type"], "guess")
+        self.assertFalse(game["turns"][0]["correct"])
+        self.assertEqual(len(game["turns"][0]["raw_responses"]), 1)
+
+    def test_unlisted_guess_is_a_format_error(self):
+        target = next(target for target in self.targets if target.id == "object-chair")
+        spec = next(
+            spec for spec in self.schedule
+            if spec.target.id == target.id and spec.answerer.key != spec.guesser.key
+        )
+        backend = SequenceBackend(["GUESS: spaceship", "GUESS: chair"])
+        game = e1.play_game(spec, self.targets, backend)
+        self.assertTrue(game["won"])
+        self.assertEqual(game["turns_used"], 1)
+        self.assertEqual(len(game["turns"][0]["raw_responses"]), 2)
+
     def test_unparseable_answer_is_explicit_and_spends_one_turn(self):
         target = next(target for target in self.targets if target.id == "object-chair")
         spec = next(

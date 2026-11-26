@@ -47,7 +47,7 @@ There are 32 concepts per category and 16 common / 16 rare concepts within each 
 
 ## E1: assigned-secret round robin (initial implementation)
 
-E1 includes all 16 directed pairings of four models, including self-play, with 40 assigned-secret games per pairing (640 games total). The answerer and guesser have separate conversation histories. Games stop at a correct guess or after 20 turns. The runner records each turn, model revision, seed, formatting retry, and result in resumable JSONL logs. Cross-play jobs request two GPUs; self-play jobs request one GPU, avoiding an idle allocation.
+E1 includes all 16 directed pairings of four models, including self-play, with 40 assigned-secret games per pairing (640 games total). The answerer and guesser have separate conversation histories. Games stop at a correct guess or after 20 turns. A guess naming any listed candidate spends a turn; a wrong guess is answered No. (A first run treated wrong guesses as formatting retries, which gave free guesses; it was discarded and re-run.) The runner records each turn, model revision, seed, formatting retry, and result in resumable JSONL logs. Cross-play jobs request two GPUs; self-play jobs request one GPU, avoiding an idle allocation.
 
 The initial E1 report includes pairwise win rates, target-clustered 95% bootstrap intervals, paired sign-flip permutation tests of model-role differences with Holm correction, turns used, invalid answers, and invalid moves. E1 does not report factual answer accuracy or question information gain: free-form questions need a reviewed answer key before those metrics are valid. The new implementation and run instructions are in the repository README.
 
@@ -59,12 +59,16 @@ The initial E1 report includes pairwise win rates, target-clustered 95% bootstra
 | E2. Self-secret/scouting comparison | 4 self-play pairings × 80 sampled model picks × 2 conditions (no scouting report / top-five favorite-pick report) | 640 |
 | E3. Liar's 20 questions | Qwen3 8B is the fixed answerer; 4 guessers × 0/1/2 scheduled flips × warned/unwarned; 500 games balanced across 24 cells, with 20 or 21 matched games per cell | 500 |
 | E4. Noisy oracle | Qwen3 8B is the fixed answerer; 4 guessers × 5%/10%/17% independent answer-flip probability × 25 games | 300 |
+| E5. Exact-information pilot | Four models each play 40 shared E1 targets against a deterministic oracle; choose from a fixed question bank with exact binary labels; compare expected/realized information gain with greedy and random baselines | 160 |
+| E6. Reasoning-budget pilot ("more thinking, more bits?") | Qwen3 8B plays the E5 setup (same 40 targets, question bank, oracle) with thinking off, a 256-token, and a 1024-token thinking budget; conditions matched by target and sampling seed | 120 |
 
 E2 uses model-generated picks constrained to the versioned 128-concept pool so the secret is known to the game and can be compared with a uniform-pick baseline. The pick distribution is descriptive because 100 picks per model provide limited power. Scouting conditions use matched secrets drawn from the same model's pick sample.
 
 In E3 and E4, Qwen3 provides the baseline natural-language Yes/No answers and the game controller applies the assigned corruption. These tests therefore measure resilience to flips on top of Qwen3's own answer behavior, not a gold factual oracle. E3's warning says that some answers may be changed but does not reveal the count or turns. Flip positions are sampled without replacement among the first 20 answer turns; if a game ends early, fewer scheduled flips may be applied, which is recorded. E3's 500 games are allocated as 20 or 21 replicates for each warned/unwarned cell, paired on the same target and flip schedule.
 
-The four follow-up rows total 2,080 games; together with E1's 640 games, the current plan totals 2,720 games. This resolves the former 2,080-game headline and inconsistent E2 row descriptions.
+The four original follow-up rows total 2,080 games; E5 adds a 160-game pilot. E5 measures question selection against a fixed, project-curated binary question bank rather than free-form questions; its feature labels need human review, and its results should be treated as a controlled pilot rather than a direct estimate of open-ended question information gain.
+
+E6 implements the reasoning-budget idea from Future work as a controlled pilot. Unlike adding games or larger models to the round robin, it tests a new causal question: does extra test-time reasoning improve question quality, and at what compute cost? Everything except the thinking budget is held fixed (model, targets, question bank, oracle, sampling settings, and per-turn seeds), so conditions are compared target by target with paired bootstrap intervals rather than pooled with earlier totals. Budgets are enforced by budget forcing: at the cap, the controller closes the reasoning block and allows at most 32 answer tokens; reasoning traces are excluded from the dialogue history. Primary outcomes are expected bits per question and optimality ratio relative to the best available question; secondary outcomes are turns, win rate (expected to be near ceiling with an exact oracle), invalid actions, generated and thinking tokens, budget-exhaustion rate, and wall-clock generation time, summarized as bits gained per 1,000 extra tokens. With 40 targets, E6 can detect only moderate effects and is reported as a pilot. Together with E5, the plan totals 2,360 follow-up games and 3,000 including E1.
 
 ## Evaluation
 
@@ -109,7 +113,7 @@ For deliberate lies and noisy answers, we will measure extra questions compared 
 ## Future work
 
 - **Larger open models:** Use additional cluster memory to compare players such as Llama 3.3 70B with the 4 main models on the same secrets.
-- **Reasoning budgets:** Vary the reasoning budget and measure its effect on information gain.
+- **Reasoning budgets:** Implemented as the E6 pilot (Qwen3 8B, three budgets). Natural extensions are more budget levels, other reasoning-capable models, and free-form rather than menu-based questions.
 - **Strategic liars:** Let the answerer decide when to lie to cause the most damage instead of introducing random lies.
 - **Committees of guessers:** Have several models discuss one question and test whether a mixed team outperforms the best individual model.
 - **Model size:** Compare different sizes from the same model family.

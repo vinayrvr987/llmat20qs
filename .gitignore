@@ -4,11 +4,24 @@ __pycache__/
 .env
 .ipynb_checkpoints/
 logs/
+# Final v2 results (guess rule v2, 2026-11-26) are committed; anything else
+# written here (mock or test runs) stays ignored.
 /data/raw/results/*
 !/data/raw/results/README.md
+!/data/raw/results/e1-cross-play-r1.jsonl
+!/data/raw/results/e1-self-play-r1.jsonl
+!/data/raw/results/e2-predictable-picks-s519.jsonl
+!/data/raw/results/e2-predictable-games-s519.jsonl
+!/data/raw/results/e2-scouting-s519.jsonl
+!/data/raw/results/e3-liar-s519.jsonl
+!/data/raw/results/e4-noisy-s519.jsonl
+!/data/raw/results/e5-exact-information-s519.*
+!/data/raw/results/e6-reasoning-budget-s519.*
 /data/interim/*
 !/data/interim/.gitkeep
-/reports/*.summary.json
 /reports/figures/*
 !/reports/figures/.gitkeep
 /models/checkpoints/
+/archive/guess-bug-v1/results/
+/archive/guess-bug-v1/reports/
+/archive/aborted-2026-11-25/results/
